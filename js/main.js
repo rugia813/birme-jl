@@ -10,6 +10,7 @@ class BFile {
     this.is_custom_focal = false;
     this.url = url;
     this.caption = '';
+    this.crop_scale = 1;
   }
 
   get output_format() {
@@ -469,16 +470,22 @@ class Birme {
           <div class="btn-duplicate mt-5">dup</div>
           <canvas class="image-mask"/>
         </div>
-        <p>${f.truncated_filename}</p>
-        <input class="input-caption" type="text" placeholder="Caption" value="${f.caption}">
+        <p class="image-info mb-0">${f.truncated_filename}</p>
+        <label>
+          Crop Scale:
+          <input class="input-crop-scale" type="range" min="0.1" max="1" value="1" step="0.01" />
+        </label>
+        <input class="input-caption" type="text" placeholder="Caption" value="${f.caption}" />
       </div>
     `;
     $(".tiles-holder").append(ele);
     let dom_ele = document.querySelector(".tile:last-child");
     this.masonry.appended(dom_ele);
     let holder = $(dom_ele.querySelector(".image-holder"));
+    let info_dom = $(dom_ele.querySelector(".image-info"));
     f.read(img => {
       holder.append(img);
+      info_dom.text(`${f.truncated_filename} (${f.width}px x ${f.height}px)`);
       this.add_one();
     });
     holder.data("file", f);
@@ -491,6 +498,13 @@ class Birme {
       this.files.push(new_file);
       this.files_to_add.push(new_file);
       this.add_one();
+    });
+
+    // crop scale event
+    const sliderElement = $(dom_ele.querySelector(".input-crop-scale"));
+    sliderElement.on("input", (e) => {
+      f.crop_scale = e.target.value;
+      this.preview_one(dom_ele, f, true)
     });
 
     // caption event
@@ -536,6 +550,7 @@ class Birme {
       return;
     }
     var img = holder.querySelector("img");
+    const crop_scale = file.crop_scale
     const tw = config.target_width;
     const th = config.target_height;
     const fx = file.focal_x;
@@ -555,7 +570,7 @@ class Birme {
     const ctx = mask.getContext("2d");
     ctx.fillStyle = ctx.createPattern(this.mask_pattern, "repeat");
     ctx.fillRect(0, 0, w, h);
-    ctx.clearRect((w - nw) * fx, (h - nh) * fy, nw, nh);
+    ctx.clearRect((w - nw * crop_scale) * fx, (h - nh * crop_scale) * fy, nw * crop_scale, nh * crop_scale);
     if (config.border_width > 0) {
       let border_width = Math.max(2, Math.round((config.border_width * w) / tw));
       ctx.strokeStyle = config.border_color;
@@ -605,6 +620,8 @@ class Birme {
   }
 
   process_image(img, file) {
+    const crop_scale = file.crop_scale;
+
     let tw = config.target_width;
     let th = config.target_height;
 
@@ -710,7 +727,7 @@ class Birme {
     /*******************************************
      * Image after the border
      ******************************************/
-    con.drawImage(img, (iw - srcw) * fx, (ih - srch) * fy, srcw, srch,
+    con.drawImage(img, (iw - srcw * crop_scale) * fx, (ih - srch * crop_scale) * fy, srcw * crop_scale, srch * crop_scale,
                        hw, hw, tw - hw * 2, th - hw * 2);
     if (config.wm_text) {  // ENGAGE WATERMARKING TEXT
       con.font = config.wm_size + "px " + config.map_font(config.wm_font);
