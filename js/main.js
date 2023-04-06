@@ -465,6 +465,7 @@ class Birme {
     <div class="tile">
         <div class="image-holder">
               <div class="btn-delete">x</div>
+              <div class="btn-duplicate mt-5">dup</div>
               <canvas class="image-mask"/>
           </div>
           <p>${f.truncated_filename}</p>
@@ -480,6 +481,15 @@ class Birme {
     holder.data("file", f);
     holder.on("mousedown", this._image_mousedown);
     holder.children(".btn-delete").on("click", this.remove_one);
+
+    // duplicate event
+    holder.children(".btn-duplicate").on("click", () => {
+      let new_file = new BFile(f.file, this.files.length);
+      this.files.push(new_file);
+      this.files_to_add.push(new_file);
+      this.add_one();
+    });
+
     this.masonry.layout();
   }
 
@@ -633,14 +643,14 @@ class Birme {
     if (config.quality_preset == "hermite") {
       let canvasHermite = document.createElement("canvas");
       let ctxHermite = canvasHermite.getContext("2d");
-  
+
       //prepare canvas
       canvasHermite.width = srcw;
       canvasHermite.height = srch;
-      
+
       //crop image based on focal selection (at full resolution)
       ctxHermite.drawImage(img, (iw - srcw) * fx, (ih - srch) * fy, srcw, srch, 0, 0, srcw, srch);
-  
+
       // Use Hermite library for image downscaling
       var HERMITE = new Hermite_class();
       HERMITE.resample_single(canvasHermite, tw, th, true);
@@ -853,7 +863,7 @@ let birme = new Birme();
 let config = new BConfig();
 
 // Testing code
-if (document.location.href.indexOf("8080") > -1) {
+if (document.location.href.indexOf("5500") > -1) {
   for (var i = 0; i < 1; i++) {
     birme._add_test_image(i + 1, "jpg");
     // birme._add_test_image(i, "webp");

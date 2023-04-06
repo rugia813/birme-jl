@@ -10084,6 +10084,7 @@ body.auto-size .ratio {
   position: relative;
   cursor: move;
 }
+.section-main .image-holder .btn-duplicate,
 .section-main .image-holder .btn-delete {
   position: absolute;
   right: 5px;
@@ -10095,6 +10096,7 @@ body.auto-size .ratio {
   z-index: 2;
   border-radius: 2px;
 }
+.section-main .image-holder .btn-duplicate:hover,
 .section-main .image-holder .btn-delete:hover {
   background-color: #84a0b5;
 }
