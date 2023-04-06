@@ -10108,6 +10108,7 @@ body.auto-size .ratio {
 .section-main .image-holder .image-mask {
   opacity: 0.8;
   transition: opacity 0.2s;
+  max-height: 100%;
 }
 .section-main .image-holder:hover .image-mask {
   opacity: 0.5;
