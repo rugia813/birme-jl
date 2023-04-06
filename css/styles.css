@@ -10120,6 +10120,17 @@ body.auto-size .ratio {
   background-color: #e9ecef;
   white-space: nowrap;
 }
+.section-main .input-caption {
+  width: 100%;
+  padding: 13px;
+  background-color: #e9ecef;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 13px;
+}
 
 .modal {
   width: 100%;

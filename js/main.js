@@ -9,6 +9,7 @@ class BFile {
     this.fx = this.fy = 0.5;
     this.is_custom_focal = false;
     this.url = url;
+    this.caption = '';
   }
 
   get output_format() {
@@ -462,14 +463,16 @@ class Birme {
       return;
     }
     let ele = `
-    <div class="tile">
+      <div class="tile">
         <div class="image-holder">
-              <div class="btn-delete">x</div>
-              <div class="btn-duplicate mt-5">dup</div>
-              <canvas class="image-mask"/>
-          </div>
-          <p>${f.truncated_filename}</p>
-      </div>`;
+          <div class="btn-delete">x</div>
+          <div class="btn-duplicate mt-5">dup</div>
+          <canvas class="image-mask"/>
+        </div>
+        <p>${f.truncated_filename}</p>
+        <input class="input-caption" type="text" placeholder="Caption" value="${f.caption}">
+      </div>
+    `;
     $(".tiles-holder").append(ele);
     let dom_ele = document.querySelector(".tile:last-child");
     this.masonry.appended(dom_ele);
@@ -488,6 +491,12 @@ class Birme {
       this.files.push(new_file);
       this.files_to_add.push(new_file);
       this.add_one();
+    });
+
+    // caption event
+    const inputElement = $(dom_ele.querySelector(".input-caption"));
+    inputElement.on("input", (e) => {
+      f.caption = e.target.value;
     });
 
     this.masonry.layout();
@@ -657,10 +666,13 @@ class Birme {
 
       const new_filename = file.base_name + "." + file.output_format.ext;
       if (this.output_zip) {
+        this.zip.file(file.base_name + ".txt", file.caption)
         canvasHermite.toBlob(b => this.save_zip(b, new_filename), file.output_format.format);
       } else {
         canvasHermite.toBlob(
           b => {
+            const captionBlob = new Blob([file.caption], {type: "text/plain;charset=utf-8"});
+            saveAs(captionBlob, new_filename + ".txt");
             saveAs(b, new_filename);
             this.save_one();
           },
@@ -713,6 +725,7 @@ class Birme {
       con.drawImage(config.wm_image, tw - config.wm_image_width - 10, th - 10 - config.wm_image_height);
     }
     let new_filename;
+    let new_filename_w_ext;
     if (config.rename) {
       if (config.rename.indexOf('ORIGINAL-NAME') > -1) {
         new_filename = config.rename.replace('ORIGINAL-NAME', file.base_name);
@@ -735,12 +748,13 @@ class Birme {
         config.rename_start++;
         new_filename = front + index.padStart(result[0].length, "0") + end;
         new_filename = new_filename.replace(/(\.jpe?g)|(\.png)/i, "");
-        new_filename += "." + output.ext;
+        new_filename_w_ext = new_filename + "." + output.ext;
         config.update_url();
         $("#rename_start").val(config.rename_start);
       }
     } else {
-      new_filename = file.base_name + "." + output.ext;
+      new_filename = file.base_name;
+      new_filename_w_ext = file.base_name + "." + output.ext;
     }
 
     let quality = 92;
@@ -752,16 +766,19 @@ class Birme {
       quality = -1;
     }
     if (this.output_zip) {
+      this.zip.file(new_filename + ".txt", file.caption)
       if (quality > 0) {
-        canvas.toBlob(b => this.save_zip(b, new_filename), output.format, quality);
+        canvas.toBlob(b => this.save_zip(b, new_filename_w_ext), output.format, quality);
       } else {
-        canvas.toBlob(b => this.save_zip(b, new_filename), output.format);
+        canvas.toBlob(b => this.save_zip(b, new_filename_w_ext), output.format);
       }
     } else {
+      const captionBlob = new Blob([file.caption], {type: "text/plain;charset=utf-8"});
       if (quality > 0) {
         canvas.toBlob(
           b => {
-            saveAs(b, new_filename);
+            saveAs(captionBlob, new_filename + ".txt");
+            saveAs(b, new_filename_w_ext);
             this.save_one();
           },
           output.format,
@@ -770,7 +787,8 @@ class Birme {
       } else {
         canvas.toBlob(
           b => {
-            saveAs(b, new_filename);
+            saveAs(captionBlob, new_filename + ".txt");
+            saveAs(b, new_filename_w_ext);
             this.save_one();
           },
           output.format
