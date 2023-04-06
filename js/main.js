@@ -783,7 +783,7 @@ class Birme {
       quality = -1;
     }
     if (this.output_zip) {
-      this.zip.file(new_filename + ".txt", file.caption)
+      file.caption && this.zip.file(new_filename + ".txt", file.caption)
       if (quality > 0) {
         canvas.toBlob(b => this.save_zip(b, new_filename_w_ext), output.format, quality);
       } else {
@@ -794,7 +794,7 @@ class Birme {
       if (quality > 0) {
         canvas.toBlob(
           b => {
-            saveAs(captionBlob, new_filename + ".txt");
+            file.caption && saveAs(captionBlob, new_filename + ".txt");
             saveAs(b, new_filename_w_ext);
             this.save_one();
           },
@@ -804,7 +804,7 @@ class Birme {
       } else {
         canvas.toBlob(
           b => {
-            saveAs(captionBlob, new_filename + ".txt");
+            file.caption && saveAs(captionBlob, new_filename + ".txt");
             saveAs(b, new_filename_w_ext);
             this.save_one();
           },
