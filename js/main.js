@@ -11,6 +11,8 @@ class BFile {
     this.url = url;
     this.caption = '';
     this.crop_scale = 1;
+    this.crop_width = 0;
+    this.crop_height = 0;
   }
 
   get output_format() {
@@ -474,6 +476,7 @@ class Birme {
         <label>
           Crop Scale:
           <input class="input-crop-scale" type="range" min="0.1" max="1" value="1" step="0.01" />
+          <p class="crop-size-display"></p>
         </label>
         <input class="input-caption" type="text" placeholder="Caption" value="${f.caption}" />
       </div>
@@ -557,11 +560,11 @@ class Birme {
     const fy = file.focal_y;
     const w = img.offsetWidth;
     const h = img.offsetHeight;
-    let nw = w;
-    let nh = h;
+    let nw = w * crop_scale;
+    let nh = h * crop_scale;
     if (!(config.auto_width || config.auto_height || config.no_resize)) {
-      nw = tw * Math.min(w / tw, h / th);
-      nh = th * Math.min(w / tw, h / th);
+      nw = tw * Math.min(w / tw, h / th) * crop_scale;
+      nh = th * Math.min(w / tw, h / th) * crop_scale;
     }
 
     mask.width = w;
@@ -570,13 +573,22 @@ class Birme {
     const ctx = mask.getContext("2d");
     ctx.fillStyle = ctx.createPattern(this.mask_pattern, "repeat");
     ctx.fillRect(0, 0, w, h);
-    ctx.clearRect((w - nw * crop_scale) * fx, (h - nh * crop_scale) * fy, nw * crop_scale, nh * crop_scale);
+    ctx.clearRect((w - nw) * fx, (h - nh) * fy, nw, nh);
     if (config.border_width > 0) {
       let border_width = Math.max(2, Math.round((config.border_width * w) / tw));
       ctx.strokeStyle = config.border_color;
       ctx.lineWidth = border_width;
       ctx.strokeRect((w - nw) * fx + border_width / 2, (h - nh) * fy + border_width / 2, nw - border_width, nh - border_width);
     }
+
+    // file.width and file.height are the original image size
+    // w and h are the image size of the canvas displaying the image
+    // nw and nh are the image size of the cropped region on the canvas
+    // now get the size of the original image size of the cropped region
+    file.crop_width = (nw * file.width) / w;
+    file.crop_height = (nh * file.height) / h;
+    const crop_size_dom = $(holder.querySelector(".crop-size-display"));
+    crop_size_dom.text(`(${Math.round(file.crop_width)}px x ${Math.round(file.crop_height)}px)`)
   }
 
   save_all(output_zip) {
