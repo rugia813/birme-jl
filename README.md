@@ -1,6 +1,4 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/2f95567a-092d-4c32-a0f1-aaeb0d3421cd/deploy-status)](https://app.netlify.com/sites/birme-variant-jl/deploys)
-
-[Site Link](https://birme-variant-jl.netlify.app/?target_width=512&target_height=512)
+[Site Link](https://rugia813.github.io/birme-sd-variant?target_width=512&target_height=512)
 
 forked from https://github.com/livelifebythecode/birme-sd-variant
 
