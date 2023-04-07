@@ -1,4 +1,4 @@
-Site Link: https://rugia813.github.io/birme-variant-jl/?target_width=512&target_height=512
+Site Link: https://rugia813.github.io/birme-jl/?target_width=512&target_height=512
 
 forked from https://github.com/livelifebythecode/birme-sd-variant
 
