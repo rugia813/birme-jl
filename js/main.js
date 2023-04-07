@@ -498,6 +498,7 @@ class Birme {
     // duplicate event
     holder.children(".btn-duplicate").on("click", () => {
       let new_file = new BFile(f.file, this.files.length);
+      new_file.base_name += +new Date()
       this.files.push(new_file);
       this.files_to_add.push(new_file);
       this.add_one();
